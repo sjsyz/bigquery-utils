@@ -1,7 +1,7 @@
 # BigQuery Audit Metadata
 
 Learn how to leverage [BigQueryAuditMetadata](https://cloud.google.com/bigquery/docs/reference/auditlogs/rest/Shared.Types/BigQueryAuditMetadata) for advanced BigQuery usage analysis. This directory is an upgrade to our previous [bigquery_audit_log_v1.sql](/views/audit/bigquery_audit_log_v1.sql) as it reads the newer and more detailed BigQueryAuditMetadata events; including information such as which tables were read/written by a given query job or which tables expired due to having an expiration time configured. The main file is: 
-* __[bigquery_audit_log_v2.sql](/views/audit/bigquery_audit_log_v2.sql)__, contains a SELECT statement to help you extract and format metadata
+* __[bigquery_audit_log_v2.sql](/views/audit/bigquery_audit_log_v2.sql)__, a SELECT statement to help you extract and format metadata
 events
 
 ## Getting Started
