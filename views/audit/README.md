@@ -31,14 +31,15 @@ Console commands, including `gcloud` and `bq`,  should be run in the Cloud Shell
     * IAM & Admin >> IAM >> ADD 
     * For the member, input `pXXXXXX@gcp-sa-logging.iam.gserviceaccount.com` (part of the Writer identity you copied in a previous step)
     * Assign the Bigquery Data Editor role and press Save
-5.  Copy and update [bigquery_audit_log_v2.sql](/views/audit/bigquery_audit_log_v2.sql)
+5.  Update [bigquery_audit_log_v2.sql](/views/audit/bigquery_audit_log_v2.sql)
     ```
     git clone https://github.com/GoogleCloudPlatform/bigquery-utils.git
     cd bigquery-utils/views/audit
     sed -i 's/project_id.dataset_id/<your-project>.<your-dataset>/' bigquery_audit_log_v2.sql
     ```
-    > Note: you must manually set project_id and dataset_id here
-6.  Congratulations! From here, you can do further analysis in BigQuery by querying the view, or you can connect it to a BI tool such as DataStudio as a data source and build dashboards.
+    > Note: You must manually set project_id and dataset_id if you are using the Cloud Shell. Alternatively, you could download the file to your desktop and use a text editor to find/replace.
+6.  Copy the entire update file, paste into the Bigquery query editor, and run
+7.  Congratulations! From here, you can do further analysis in BigQuery by saving and querying the view, or you can connect it to a BI tool such as DataStudio as a data source and build dashboards.
     
 ## Usage Examples
 
