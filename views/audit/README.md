@@ -1,15 +1,10 @@
-This directory contains helper SELECT statements to query BigQuery audit logs \
-More information regarding each is detailed below:
+# BigQuery Audit Metadata
 
+This directory illustrates how users can leverage [BigQueryAuditMetadata](https://cloud.google.com/bigquery/docs/reference/auditlogs/rest/Shared.Types/BigQueryAuditMetadata) for advanced BigQuery usage analysis. 
+* __[bigquery_audit_log_v2.sql](/views/audit/bigquery_audit_log_v2.sql)__, contains a SELECT statement to help you extract and format metadata
+events
 
-### [bigquery_audit_log_v2.sql](/views/audit/bigquery_audit_log_v2.sql)
-
-BigQuery SELECT statement to help you extract and format BigQueryMetaData
-events.
-
-#### Prerequisites
-
-[BigQueryAuditMetadata](https://cloud.google.com/bigquery/docs/reference/auditlogs/rest/Shared.Types/BigQueryAuditMetadata)
+## Setup
 
 1.  Define a BigQuery log sink using any of the following methods:
     *   [gcloud command](https://cloud.google.com/bigquery/docs/reference/auditlogs#defining_a_bigquery_log_sink_using_gcloud)
@@ -41,7 +36,7 @@ events.
     you can connect it to a BI tool such as DataStudio as a data source and
     build dashboards.
     
-#### Usage Examples
+### Usage Examples
 
 * Retrieve All SELECT SQL Queries Executed 
   ```  
@@ -103,7 +98,7 @@ events.
     hasTableDeletionEvent
   ```
 
-### [bigquery_audit_log_v1.sql](/views/audit/bigquery_audit_log_v1.sql) (old version of logs)
+### [bigquery_audit_log_v1.sql](/views/audit/bigquery_audit_log_v1.sql) (old version)
 
 BigQuery SELECT statement to help you extract and format the legacy [(Audit Data)](https://cloud.google.com/bigquery/docs/reference/auditlogs/rest/Shared.Types/AuditData)
 events. You'll want to use the [bigquery_audit_log_v2.sql](/views/audit/bigquery_audit_log_v2.sql) SELECT
