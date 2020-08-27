@@ -23,7 +23,7 @@
  * Reference for BigQueryAuditMetadata: https://cloud.google.com/bigquery/docs/reference/auditlogs/rest/Shared.Types/BigQueryAuditMetadata
  */
 
-CREATE OR REPLACE VIEW `project_id.dataset_id.audit_logs`` AS
+CREATE OR REPLACE VIEW `project_id.dataset_id.audit_logs` AS
   WITH jobChangeEvent AS (
     SELECT
       protopayload_auditlog.authenticationInfo.principalEmail,
@@ -138,12 +138,12 @@ CREATE OR REPLACE VIEW `project_id.dataset_id.audit_logs`` AS
         TIMESTAMP(JSON_EXTRACT_SCALAR(protopayload_auditlog.metadataJson,
           '$.jobChange.job.jobStats.startTime')),
         SECOND) AS jobStatsRuntimeSecs,
-      CAST(CEILING(TIMESTAMP_DIFF(
+      CAST(CEILING(SAFE_DIVIDE(TIMESTAMP_DIFF(
         TIMESTAMP(JSON_EXTRACT_SCALAR(protopayload_auditlog.metadataJson,
           '$.jobChange.job.jobStats.endTime')),
         TIMESTAMP(JSON_EXTRACT_SCALAR(protopayload_auditlog.metadataJson,
           '$.jobChange.job.jobStats.startTime')),
-        SECOND) / 60) AS INT64) AS jobStatsExecutionMinuteBuckets,
+        SECOND), 60)) AS INT64) AS jobStatsExecutionMinuteBuckets,
       /*
        * Job configuration information.
        * https://cloud.google.com/bigquery/docs/reference/auditlogs/rest/Shared.Types/BigQueryAuditMetadata#jobconfig
@@ -689,7 +689,7 @@ CREATE OR REPLACE VIEW `project_id.dataset_id.audit_logs`` AS
     jobStatsRuntimeSecs AS jobRuntimeSec,
     REGEXP_CONTAINS(jobId, 'beam') AS isBeamJob,
     REGEXP_CONTAINS(queryConfigQuery, 'cloudaudit_googleapis_com_') AS isAuditDashboardQuery,
-    jobStatsTotalSlotMs / jobStatsRuntimeMs AS avgSlots,
+    SAFE_DIVIDE(jobStatsTotalSlotMs, jobStatsRuntimeMs) AS avgSlots,
     /*
      * The following statement breaks down the query into minute buckets
      * and provides the average slot usage within that minute. This is a
@@ -702,15 +702,15 @@ CREATE OR REPLACE VIEW `project_id.dataset_id.audit_logs`` AS
           TIMESTAMP_TRUNC(
             TIMESTAMP_ADD(jobStatsStartTime, INTERVAL bucket_num MINUTE), MINUTE
           ) AS time,
-          jobStatsTotalSlotMs / jobStatsRuntimeMs AS avgSlotUsage
+          SAFE_DIVIDE(jobStatsTotalSlotMs, jobStatsRuntimeMs) AS avgSlotUsage
         )
       FROM UNNEST(GENERATE_ARRAY(1, jobStatsExecutionMinuteBuckets)) AS bucket_num
     ) AS jobExecutionTimeline,
     ARRAY_LENGTH(queryJobStatsReferencedTables) AS totalTablesProcessed,
     ARRAY_LENGTH(queryJobStatsReferencedViews) AS totalViewsProcessed,
-    (queryJobStatsTotalBilledBytes / pow(2,30)) AS totalBilledGigabytes,
-    (queryJobStatsTotalBilledBytes / pow(2,40)) AS totalBilledTerabytes,
-    (queryJobStatsTotalBilledBytes / pow(2,40)) * 5 AS estimatedCostUsd,
+    (SAFE_DIVIDE(queryJobStatsTotalBilledBytes, pow(2,30))) AS totalBilledGigabytes,
+    (SAFE_DIVIDE(queryJobStatsTotalBilledBytes, pow(2,40))) AS totalBilledTerabytes,
+    (SAFE_DIVIDE(queryJobStatsTotalBilledBytes, pow(2,40))) * 5 AS estimatedCostUsd,
     CONCAT(
       queryConfigDestinationTableDatasetId, '.',
       queryConfigDestinationTableId) AS queryDestinationTableRelativePath,
@@ -839,8 +839,8 @@ CREATE OR REPLACE VIEW `project_id.dataset_id.audit_logs`` AS
      * https://cloud.google.com/bigquery/docs/reference/auditlogs/rest/Shared.Types/BigQueryAuditMetadata#load_1
     */
     loadJobStatsTotalOutputBytes AS totalLoadOutputBytes,
-    (loadJobStatsTotalOutputBytes / pow(2,30)) AS totalLoadOutputGigabytes,
-    (loadJobStatsTotalOutputBytes / pow(2,40)) AS totalLoadOutputTerabytes,
+    (SAFE_DIVIDE(loadJobStatsTotalOutputBytes, pow(2,30))) AS totalLoadOutputGigabytes,
+    (SAFE_DIVIDE(loadJobStatsTotalOutputBytes, pow(2,40))) AS totalLoadOutputTerabytes,
     /*
      * tableChange STRUCT
      * https://cloud.google.com/bigquery/docs/reference/auditlogs/rest/Shared.Types/BigQueryAuditMetadata#TableChange
